@@ -1,5 +1,6 @@
 ﻿using AspNetCoreLogging.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,15 +13,22 @@ namespace AspNetCoreLogging.Controllers
     public class CarsController : Controller
     {
         private readonly ICarsService carsService;
+        private readonly ILogger<CarsController> logger;
 
-        public CarsController(ICarsService carsService)
+        public CarsController(ICarsService carsService, ILogger<CarsController> logger)
         {
             this.carsService = carsService;
+            this.logger = logger;
         }
 
         [HttpGet]
         public async Task<List<Cars>> Get()
         {
+            string temp1 = "test string";
+
+            logger.LogInformation($"Information Log {temp1}");
+            logger.LogWarning($"Information Log {temp1}");
+            logger.LogError($"Information Log {temp1}");
             return await carsService.GetCars();
         }
 
