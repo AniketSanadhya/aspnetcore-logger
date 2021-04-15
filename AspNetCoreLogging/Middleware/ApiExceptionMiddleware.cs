@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -35,6 +37,13 @@ namespace AspNetCoreLogging.Middleware
 
         private Task HandleExceptionAsync(HttpContext httpContext, Exception ex)
         {
+
+            Dictionary<string, string> customProperties = new Dictionary<string, string>();
+            TelemetryConfiguration telemetryConfiguration = TelemetryConfiguration.CreateDefault();
+            telemetryConfiguration.InstrumentationKey = "key";
+
+            TelemetryClient telemetryClient = new TelemetryClient(telemetryConfiguration);
+
             var error = new ApiError()
             {
                 Id = Guid.NewGuid().ToString(),
@@ -44,6 +53,9 @@ namespace AspNetCoreLogging.Middleware
             var innerMessage = GetInnerMessage(ex);
 
             logger.LogError(ex, "Inner Message: " + innerMessage + " Id: " + error.Id);
+            customProperties.Add("Inner Message", innerMessage);
+            customProperties.Add("id", error.Id);
+            telemetryClient.TrackException(ex, customProperties);
 
             var result = JsonConvert.SerializeObject(error);
 

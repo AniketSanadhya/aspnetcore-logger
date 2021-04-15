@@ -53,6 +53,7 @@ namespace AspNetCoreLogging.Controllers
         [HttpGet("{id}/{make}")]
         public async Task<Cars> Get(Guid id, string make)
         {
+            throw new NullReferenceException();
             return await carsService.GetCarById(id, make);
         }
     }
